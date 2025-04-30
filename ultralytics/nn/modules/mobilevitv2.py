@@ -6,11 +6,13 @@ from cvnets.cvnets.modules.mobilevit_block import MobileViTBlockv2 as CVNetsMV2
 from ultralytics.nn.modules.conv import Conv
 
 class CVNetsConvLayer2d(nn.Module):
-    """Alias Ultralytics Conv → BN → SiLU block for YOLO-style parsing."""
-    def __init__(self, c1, c2, k=1, s=1):
+    """Wrap Ultralytics Conv, swallowing any extra args the parser may give."""
+    def __init__(self, c1, c2, k=1, s=1, *args, **kwargs):
         super().__init__()
-        # Conv(in_channels, out_channels, kernel, stride, groups=1, act=True)
+        # k, s come from the first two positional extra args; 
+        # any further args are ignored.
         self.layer = Conv(c1, c2, k, s)
+
     def forward(self, x):
         return self.layer(x)
 
