@@ -5,6 +5,15 @@ from cvnets.cvnets.modules.mobilenetv2 import InvertedResidual as CVNetsInvRes
 from cvnets.cvnets.modules.mobilevit_block import MobileViTBlockv2 as CVNetsMV2
 from ultralytics.nn.modules.conv import Conv
 
+# ----------------------------------------------------------------------------
+# Dummy opts so all CVNets modules don’t crash when they try opts.model.normalization
+class _Opts:
+    class model:
+        class normalization:
+            name = "batchnorm2d"   # or whatever normalization CVNets expects
+DUMMY_OPTS = _Opts()
+# ----------------------------------------------------------------------------
+
 class CVNetsConvLayer2d(nn.Module):
     """Wrap Ultralytics Conv, swallowing any extra args the parser may give."""
     def __init__(self, c1, c2, k=1, s=1, *args, **kwargs):
@@ -22,11 +31,12 @@ class CVNetsInvertedResidual(nn.Module):
         super().__init__()
         # Wrap CVNets MobilenetV2 InvertedResidual
         self.block = CVNetsInvRes(
-            opts=None, 
+            opts=DUMMY_OPTS,
             in_channels=c1, out_channels=c2,
             stride=stride, expand_ratio=expand_ratio,
             dilation=dilation, skip_connection=skip
         )
+
     def forward(self, x):
         return self.block(x)
 
@@ -36,7 +46,7 @@ class CVNetsMobileViTBlockv2(nn.Module):
         super().__init__()
         # Wrap CVNets MobileViTBlockv2
         self.block = CVNetsMV2(
-            opts=None,
+            opts=DUMMY_OPTS,
             in_channels=c1,
             attn_unit_dim=attn_dim,
             ffn_multiplier=ffn_mult,
@@ -44,5 +54,6 @@ class CVNetsMobileViTBlockv2(nn.Module):
             patch_h=patch_h, patch_w=patch_w,
             conv_ksize=conv_ksize, dilation=dilation
         )
+
     def forward(self, x):
         return self.block(x)
