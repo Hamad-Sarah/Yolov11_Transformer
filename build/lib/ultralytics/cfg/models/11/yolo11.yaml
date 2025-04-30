@@ -51,3 +51,22 @@ head:
   - [-1, 2, C3k2, [1024, True]] # 22 (P5/32-large)
 
   - [[16, 19, 22], 1, Detect, [nc]] # Detect(P3, P4, P5)
+
+
+
+so updates so far, sar fi mitil draft ( used copilot and cv to write the codes) on adding the mobilevitv2 transformer as a new class bil transformer.py file, the thing is it needs cvnets library, we can easily install it bas khayfe min l dependencies. 2- GPT suggested we integrate this new transformer layer with other layers, I think this is good kirmel hek we ensure the final output is still right, w we add transformers, so bisir l backbone hek bl yaml file: 
+ backbone:  # [from, repeats, module, args]
+   - [-1, 1, Conv, [64,   3, 2]]   # 0-P1/2
+   - [-1, 1, Conv, [128,  3, 2]]   # 1-P2/4
+   - [-1, 2, C3k2,  [256, False, 0.25]]
+   - [-1, 1, Conv, [256,  3, 2]]   # 3-P3/8
+   - [-1, 2, C3k2,  [512, False, 0.25]]
+   - [-1, 1, Conv, [512,  3, 2]]   # 5-P4/16
+-  - [-1, 2, C3k2,  [512, True]]
++  - [-1, 1, MobileViTv2Backbone, []]  # replaces P4 & P5
+   - [-1, 1, Conv, [1024, 3, 2]]   # 7-P5/32
+-  - [-1, 2, C3k2,  [1024, True]]
++  # (now handled inside MobileViTv2Backbone)
+   - [-1, 1, SPPF, [1024, 5]]
+   - [-1, 2, C2PSA, [1024]]. 
+3- integrating it to the parse_model is just adding some lines of code. bas akid this is all high level
