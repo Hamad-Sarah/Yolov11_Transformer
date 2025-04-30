@@ -136,7 +136,11 @@ class _BaseConvNormActLayer(BaseLayer):
         super().__init__()
 
         if norm_layer is None and use_norm:
-            norm_type = getattr(opts, "model.normalization.name")
+            # get normalization type (e.g. 'batchnorm2d', 'groupnorm')
+            try:
+                norm_type = getattr(opts, "model.normalization.name")
+            except Exception:
+                norm_type = "batchnorm2d"
             if norm_type == "batch_norm":
                 norm_type = f"batch_norm_{self.ndim}d"
             norm_layer = get_normalization_layer(
