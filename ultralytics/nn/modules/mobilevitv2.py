@@ -11,9 +11,9 @@ class _Opts:
     def __init__(self):
         self.model = {
             "normalization": {
-                "name": "batch_norm_2d",  # Default normalization type
-                "groups": 32,          # Default number of groups for group normalization
-                "momentum": 0.1        # Default momentum for normalization layers
+                "name": "batch_norm_2d",  # Use a supported normalization type
+                "groups": 32,            # Default number of groups for group normalization
+                "momentum": 0.1          # Default momentum for normalization layers
             }
         }
 
