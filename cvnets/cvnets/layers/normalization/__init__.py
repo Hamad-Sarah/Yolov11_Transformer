@@ -39,37 +39,21 @@ def build_normalization_layer(
     num_groups: Optional[int] = None,
     momentum: Optional[float] = None,
 ) -> torch.nn.Module:
-    """
-    Helper function to build the normalization layer.
-    The function can be used in either of below mentioned ways:
-    Scenario 1: Set the default normalization layers using command line arguments. This is useful when the same normalization
-    layer is used for the entire network (e.g., ResNet).
-    Scenario 2: Network uses different normalization layers. In that case, we can override the default normalization
-    layer by specifying the name using `norm_type` argument.
-    """
     if norm_type is None:
-        norm_type = getattr(opts, "model.normalization.name")
+        norm_type = getattr(opts, "model.normalization.name", "batchnorm2d")
     if num_groups is None:
-        num_groups = getattr(opts, "model.normalization.groups")
+        num_groups = getattr(opts, "model.normalization.groups", 32)  # Default to 32 groups
     if momentum is None:
-        momentum = getattr(opts, "model.normalization.momentum")
+        momentum = getattr(opts, "model.normalization.momentum", 0.1)  # Default momentum
 
     norm_layer = None
     norm_type = norm_type.lower()
 
     if norm_type in NORM_LAYER_REGISTRY:
-        # For detecting non-cuda envs, we do not use torch.cuda.device_count() < 1
-        # condition because tests always use CPU, even if cuda device is available.
-        # Otherwise, we will get "ValueError: SyncBatchNorm expected input tensor to be
-        # on GPU" Error when running tests on a cuda-enabled node (usually linux).
-        #
-        # Note: We provide default value for getattr(opts, ...) because the configs may
-        # be missing "dev.device" attribute in the test env.
         if (
             "cuda" not in str(getattr(opts, "dev.device", "cpu"))
             and "sync_batch" in norm_type
         ):
-            # for a CPU-device, Sync-batch norm does not work. So, change to batch norm
             norm_type = norm_type.replace("sync_", "")
         norm_layer = NORM_LAYER_REGISTRY[norm_type](
             normalized_shape=num_features,
@@ -86,7 +70,6 @@ def build_normalization_layer(
             )
         )
     return norm_layer
-
 
 def arguments_norm_layers(parser: argparse.ArgumentParser):
     group = parser.add_argument_group(

@@ -8,10 +8,15 @@ from ultralytics.nn.modules.conv import Conv
 # ----------------------------------------------------------------------------
 # Dummy opts so all CVNets modules don’t crash when they try opts.model.normalization
 class _Opts:
-    class model:
-        class normalization:
-            name = "batchnorm2d"   # or whatever normalization CVNets expects
-            groups = 32 # default for CVNets
+    def __init__(self):
+        self.model = {
+            "normalization": {
+                "name": "batchnorm2d",  # Default normalization type
+                "groups": 32,          # Default number of groups for group normalization
+                "momentum": 0.1        # Default momentum for normalization layers
+            }
+        }
+
 DUMMY_OPTS = _Opts()
 # ----------------------------------------------------------------------------
 
