@@ -1,23 +1,19 @@
 # ultralytics/nn/modules/mobilevitv2.py
 import torch
 import torch.nn as nn
-from cvnets.cvnets.layers import ConvLayer2d
 from cvnets.cvnets.modules.mobilenetv2 import InvertedResidual as CVNetsInvRes
 from cvnets.cvnets.modules.mobilevit_block import MobileViTBlockv2 as CVNetsMV2
+from ultralytics.nn.modules.conv import Conv
 
 class CVNetsConvLayer2d(nn.Module):
-    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, d=1, use_norm=True, use_act=True):
+    """Alias Ultralytics Conv → BN → SiLU block for YOLO-style parsing."""
+    def __init__(self, c1, c2, k=1, s=1):
         super().__init__()
-        # Use CVNets ConvLayer2d with dummy opts (assuming CVNets deps are available)
-        self.layer = ConvLayer2d(
-            opts=None, 
-            in_channels=c1, out_channels=c2,
-            kernel_size=k, stride=s, padding=p,
-            groups=g, dilation=d,
-            use_norm=use_norm, use_act=use_act
-        )
+        # Conv(in_channels, out_channels, kernel, stride, groups=1, act=True)
+        self.layer = Conv(c1, c2, k, s)
     def forward(self, x):
         return self.layer(x)
+
 
 class CVNetsInvertedResidual(nn.Module):
     def __init__(self, c1, c2, stride, expand_ratio, dilation=1, skip=True):
