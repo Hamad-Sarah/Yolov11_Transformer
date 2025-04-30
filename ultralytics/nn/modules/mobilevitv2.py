@@ -11,6 +11,7 @@ class _Opts:
     class model:
         class normalization:
             name = "batchnorm2d"   # or whatever normalization CVNets expects
+            groups = 32 # default for CVNets
 DUMMY_OPTS = _Opts()
 # ----------------------------------------------------------------------------
 
